@@ -1,0 +1,72 @@
+[
+  {
+    "id": "court-square-2026",
+    "title": "Court Square Pedestrian Improvements",
+    "area": "Long Island City, Queens",
+    "discoveryZip": "11101",
+    "placeOptions": [
+      {
+        "id": "thomson-jackson",
+        "label": "Thomson Avenue at Jackson Avenue",
+        "aliases": [
+          "thomson avenue at jackson avenue",
+          "thomson and jackson"
+        ]
+      },
+      {
+        "id": "pearson-jackson",
+        "label": "Pearson Street at Jackson Avenue",
+        "aliases": [
+          "pearson street at jackson avenue",
+          "pearson and jackson"
+        ]
+      },
+      {
+        "id": "court-square-west",
+        "label": "Court Square West at Jackson Avenue",
+        "aliases": [
+          "court square west at jackson avenue"
+        ]
+      }
+    ],
+    "source": {
+      "url": "https://www.nyc.gov/html/dot/downloads/pdf/court-square-cb2-mar2026.pdf",
+      "title": "Court Square Pedestrian Improvements — March 2026",
+      "documentDate": "2026-03",
+      "checkedDate": "2026-10-07",
+      "status": "Dated design presentation; current implementation and consultation status not independently verified"
+    },
+    "claims": [
+      {
+        "id": "thomson-space",
+        "placeIds": [
+          "thomson-jackson"
+        ],
+        "page": 17,
+        "text": "The presentation proposes wider sidewalks, additional pedestrian crossings and one-way traffic on Thomson Avenue between Jackson Avenue and 44th Drive."
+      },
+      {
+        "id": "pearson-crossing",
+        "placeIds": [
+          "pearson-jackson"
+        ],
+        "page": 15,
+        "text": "The presentation proposes signalized pedestrian access at Pearson Street and Jackson Avenue."
+      },
+      {
+        "id": "shared-street",
+        "placeIds": [
+          "court-square-west"
+        ],
+        "page": 12,
+        "text": "The presentation describes a raised shared street on Court Square West from Jackson Avenue to approximately midblock, prioritizing pedestrian movement."
+      },
+      {
+        "id": "timeline",
+        "placeIds": [],
+        "page": 26,
+        "text": "The presentation lists summer 2027 as a tentative construction start and states that project dates are subject to change."
+      }
+    ]
+  }
+]
