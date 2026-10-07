@@ -59,3 +59,43 @@ test('static asset resolution cannot escape the build directory',async()=>{
  assert.equal(await readAsset('/.env'),null);
  assert.equal(await readAsset('/%00.html'),null);
 });
+
+test('valid multilingual drafts fit the transport bound; oversized input remains rejected',async(t)=>{
+ const app=createApp();
+ await new Promise(resolve=>app.listen(0,'127.0.0.1',resolve));
+ t.after(()=>new Promise(resolve=>app.close(resolve)));
+ const base='http://127.0.0.1:'+app.address().port;
+ const post=data=>fetch(base+'/api/draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+ assert.equal((await post({place:'한'.repeat(200),observation:'한'.repeat(4000),change:'한'.repeat(2000),reviewed:true})).status,200);
+ assert.equal((await post({place:'x'.repeat(65000),reviewed:true})).status,400);
+});
+test('model validation failures are service failures, not resident input errors',async(t)=>{
+ const {InputError}=await import('../src/core.mjs');
+ const app=createApp(async()=>{throw new InputError('Unsupported internal claim');});
+ await new Promise(resolve=>app.listen(0,'127.0.0.1',resolve));
+ t.after(()=>new Promise(resolve=>app.close(resolve)));
+ const response=await fetch('http://127.0.0.1:'+app.address().port+'/api/reflect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
+ assert.equal(response.status,503);
+ const {error}=await response.json();
+ assert.match(error,/verified answer/);
+ assert.doesNotMatch(error,/internal claim/);
+});
+test('HTTP confirmation skips inference and concurrency recovers after failure',async(t)=>{
+ let release;
+ const pending=new Promise(resolve=>{release=resolve});
+ let calls=0;
+ const app=createApp(async()=>{calls++;await pending;throw Error('offline')});
+ await new Promise(resolve=>app.listen(0,'127.0.0.1',resolve));
+ t.after(()=>new Promise(resolve=>app.close(resolve)));
+ const base='http://127.0.0.1:'+app.address().port;
+ const post=data=>fetch(base+'/api/reflect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+ assert.equal((await (await post({...input,confirmed:false})).json()).status,'needs_confirmation');
+ assert.equal(calls,0);
+ const first=post(input);
+ while(calls===0)await new Promise(resolve=>setImmediate(resolve));
+ assert.equal((await post(input)).status,429);
+ release();
+ assert.equal((await first).status,503);
+ assert.equal((await post(input)).status,503);
+ assert.equal(calls,2);
+});

@@ -8,7 +8,7 @@ const cases = JSON.parse(await readFile(new URL('../data/cases.json',import.meta
 async function readJson(req) {
   if (!(req.headers['content-type'] || '').startsWith('application/json')) throw new InputError('Use application/json.');
   let size = 0; const chunks = [];
-  for await (const chunk of req) { size += chunk.length; if (size > 16000) { req.resume(); throw new InputError('Request is too large.'); } chunks.push(chunk); }
+  for await (const chunk of req) { size += chunk.length; if (size > 64000) { req.resume(); throw new InputError('Request is too large.'); } chunks.push(chunk); }
   try {
     const input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error();
@@ -31,7 +31,11 @@ export function createApp(infer = analyze) {
         if (context.status !== 'matched') return respond(200,context);
         if (active) return respond(429,{error:'One local reflection is already processing. Try again when it finishes.'});
         active = true;
-        try { return respond(200,{...context,analysis:await infer(context)}); } finally { active = false; }
+        try {
+          return respond(200,{...context,analysis:await infer(context)});
+        } catch {
+          return respond(503,{error:'The local model could not provide a verified answer. Your words are still here. Check the model server and try again, or write your own suggestion.'});
+        } finally { active = false; }
       }
       if (req.method === 'GET' || req.method === 'HEAD') {
         const asset = await readAsset(req.url);

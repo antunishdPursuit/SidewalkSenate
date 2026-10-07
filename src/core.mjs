@@ -16,7 +16,6 @@ export function selectCase(cases, input) {
 export function reflectionContext(cases, input) {
   const observation = text(input.observation, 'Reflection');
   const selection = selectCase(cases, input);
-  if (selection.status !== 'matched') return { ...selection, observation };
   return { ...selection, observation };
 }
 export function validateAnalysis(raw, context) {
