@@ -51,3 +51,11 @@ test('HTTP golden path, no-match, malformed request and origin rejection',async(
  assert.equal((await post('/api/reflect',input,{Origin:'https://unrelated.example'})).status,403);
  assert.equal((await post('/api/draft',{...input,reviewed:true,change:'Please discuss more pedestrian space.'})).status,200);
 });
+
+test('static asset resolution cannot escape the build directory',async()=>{
+ const {readAsset}=await import('../src/static.mjs');
+ assert.equal(await readAsset('/%2e%2e%2fpackage.json'),null);
+ assert.equal(await readAsset('/%5c..%5cpackage.json'),null);
+ assert.equal(await readAsset('/.env'),null);
+ assert.equal(await readAsset('/%00.html'),null);
+});

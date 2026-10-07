@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { InputError, reflectionContext, makeDraft } from './core.mjs';
 import { analyze } from './model.mjs';
+import { readAsset } from './static.mjs';
 const cases = JSON.parse(await readFile(new URL('../data/cases.json',import.meta.url),'utf8'));
 async function readJson(req) {
   if (!(req.headers['content-type'] || '').startsWith('application/json')) throw new InputError('Use application/json.');
@@ -32,7 +33,14 @@ export function createApp(infer = analyze) {
         active = true;
         try { return respond(200,{...context,analysis:await infer(context)}); } finally { active = false; }
       }
-      return respond(404,{error:'Not found. This increment provides a local API; the interface is pending design approval.'});
+      if (req.method === 'GET' || req.method === 'HEAD') {
+        const asset = await readAsset(req.url);
+        if (asset) {
+          res.writeHead(200, {'Content-Type': asset.type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', 'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"});
+          return res.end(req.method === 'HEAD' ? undefined : asset.body);
+        }
+      }
+      return respond(404,{error:'Not found. Build the browser app with npm run build if the home page is missing.'});
     } catch (error) {
       if (error instanceof InputError) return respond(400,{error:error.message});
       return respond(503,{error:'Local analysis unavailable. Your reflection was not stored. Check the local model server and try again.'});

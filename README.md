@@ -4,13 +4,15 @@ A new local-first prototype connecting everyday outings with dated public-space 
 
 ## Current increment
 
-Local API and interactive terminal session; browser interface pending. One curated Court Square project with three explicitly confirmed street locations. No tracking, Gmail, email sending, account connection, live search, telemetry or persistent reflection storage. Nothing here establishes present street conditions or an open consultation.
+React notebook interface, local API and interactive terminal session. One curated Court Square project with three explicitly confirmed street locations. No tracking, Gmail, email sending, account connection, live search, telemetry or persistent reflection storage. Nothing here establishes present street conditions or an open consultation.
 
-Requires Node.js 24+. No package installation or paid API is needed for this increment.
+Requires Node.js 24+. Run npm ci to install the frontend dependencies. No paid API is required.
 
 ```powershell
+npm ci
 npm test
 npm run check
+npm run build
 npm start
 ```
 
@@ -39,3 +41,13 @@ Run the tests for source-footprint matching, citation validation, local inferenc
 ## Interactive terminal session
 
 With the local model server running, use: npm run walk. Choose only a location you personally recognize; otherwise select 0. You can discuss an unsupported place and format your own unsent suggestion without any model connection. Original reflections are shown beside AI output. Review and edit the suggestion before formatting it.
+
+## Browser notebook
+
+After npm run build and npm start, open http://127.0.0.1:4178. The server serves the built UI and API from one loopback origin. For frontend development, run npm start and npm run dev in separate terminals; Vite proxies API requests locally.
+
+The notebook supports optional preparation, up to six manually entered stops, source-place confirmation, separate original words and AI interpretations, and editable unsent drafts. User text stays in the browser session and disappears on reload/close; copy anything you want to keep. A leave-page warning reduces accidental loss but is not guaranteed by every browser. No automatic saving, background tracking or email sending exists.
+
+Kalam headings are bundled locally from Google Fonts under SIL OFL 1.1; see public/fonts/OFL.txt. Body and editable text use system sans-serif. No remote font requests or analytics are included.
+
+Live search, automatic recipient lookup, multiple-city coverage and partner services are not integrated. Current curated coverage remains one Court Square project. A source connection requires human review and does not establish that a plan is implemented, that a consultation is open, or that your view represents the neighborhood.
