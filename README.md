@@ -51,3 +51,8 @@ The notebook supports optional preparation, up to six manually entered stops, so
 Kalam headings are bundled locally from Google Fonts under SIL OFL 1.1; see public/fonts/OFL.txt. Body and editable text use system sans-serif. No remote font requests or analytics are included.
 
 Live search, automatic recipient lookup, multiple-city coverage and partner services are not integrated. Current curated coverage remains one Court Square project. A source connection requires human review and does not establish that a plan is implemented, that a consultation is open, or that your view represents the neighborhood.
+
+## Manual map
+Leaflet 1.9.4 displays free OpenStreetMap tiles. Numbered pins identify three reference intersections in the one reviewed Court Square project, not project boundaries. Coordinate provenance is recorded in data/cases.json. Choose a pin or click elsewhere and name the place. Arbitrary pins never imply a proposal match; reviewed places still require confirmation. After an outing, choose which stop the map edits. Changing a place clears its old connection and draft while preserving its reflection.
+
+No GPS, geocoding, route recording or paid map service is used. OpenStreetMap receives the visible tile area and network address, not typed reflections. The background requires internet; location buttons and text entry remain available without it. Attribution stays visible, browser caching is respected, and tiles are never prefetched. Follow https://operations.osmfoundation.org/policies/tiles/ for deployment; the community tile service is best-effort. Automated interaction tests must mock tiles rather than pan/zoom against the public service.

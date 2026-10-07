@@ -1,11 +1,13 @@
 import {useEffect,useRef,useState} from 'react';
 
-type Place = {id:string;label:string};
+import PlaceMap, {type Point,type MapPlace} from './PlaceMap';
+
+type Place = MapPlace;
 type Source = {url:string;title:string;documentDate:string;status:string};
 type Case = {id:string;title:string;placeOptions:Place[];source:Source};
 type Analysis = {reflectionSummary:string;connections:{claimId:string;explanation:string;sourceClaim:string;citation:string}[];suggestion:{title:string;change:string;rationale:string;openQuestions:string[]};notice:string};
 type Draft = {subject:string;body:string;notice:string};
-type Stop = {id:string;place:string;observation:string;placeId:string;confirmed:boolean;analysis?:Analysis;source?:Source;outcome?:string;error?:string;busy:boolean;change:string;reviewed:boolean;draft?:Draft};
+type Stop = {id:string;place:string;observation:string;placeId:string;confirmed:boolean;point?:Point;analysis?:Analysis;source?:Source;outcome?:string;error?:string;busy:boolean;change:string;reviewed:boolean;draft?:Draft};
 const steps=['Before you go','Back from your outing','Explore the connection','Shape your suggestion'];
 const freshStop=():Stop=>({id:crypto.randomUUID(),place:'',observation:'',placeId:'',confirmed:false,busy:false,change:'',reviewed:false});
 async function api(path:string,body?:unknown){
@@ -20,6 +22,7 @@ export default function App(){
  const previousStep=useRef(0);
  useEffect(()=>{if(previousStep.current!==step){document.getElementById('main')?.focus({preventScroll:true});previousStep.current=step}},[step]);
  const [destination,setDestination]=useState('');
+ const [destinationPoint,setDestinationPoint]=useState<Point>();
  const [headingOut,setHeadingOut]=useState(false);
  const [stops,setStops]=useState<Stop[]>(()=>[freshStop()]);
  const [active,setActive]=useState<string>('');
@@ -49,7 +52,7 @@ export default function App(){
  function move(index:number){setStep(index);setNotice('')}
  function reset(){
   if(dirty&&!window.confirm('Clear this outing? Your reflections and drafts are not saved.'))return;
-  const first=freshStop();setStops([first]);setActive(first.id);setDestination('');setHeadingOut(false);setNotice('');setStep(0);
+  const first=freshStop();setStops([first]);setActive(first.id);setDestination('');setDestinationPoint(undefined);setHeadingOut(false);setNotice('');setStep(0);
  }
  async function connect(stop:Stop){
   if(!stop.place.trim()||!stop.observation.trim()){setNotice('Add a place and a reflection first. A few words are enough.');return}
@@ -82,9 +85,14 @@ export default function App(){
   </header>
   <nav aria-label="Outing steps" className="steps">{steps.map((label,index)=><button key={label} className={step===index?'step current':'step'} aria-current={step===index?'step':undefined} onClick={()=>move(index)}><span className="step-number" aria-hidden="true">0{index+1}</span>{label}</button>)}</nav>
   <main id="main" tabIndex={-1}>
-   <div className="page-heading"><p className="eyebrow">A neighborhood notebook · Queens, NYC</p><h1>{step===0?'Your neighborhood,\nin your own words.':step===1?'What stayed with you?':step===2?'A thought meets a plan.':'A small idea for your neighborhood.'}</h1><p className="intro">{step===0?'Go somewhere you already want to go. Come back with a thought about the place. We’ll help you find where that thought belongs.':step===1?'Tell us what you remember, not what you think you were supposed to notice. One memorable stop is enough.':step===2?'Your experience comes first. A documented proposal adds context; it doesn’t tell you how to feel.':'Keep your own voice. An idea can begin with a feeling, without pretending to be a finished design.'}</p></div>
+   <div className={step<2?"page-heading map-intro":"page-heading"}><p className="eyebrow">A neighborhood notebook · Queens, NYC</p><h1>{step===0?'Your neighborhood,\nin your own words.':step===1?'What stayed with you?':step===2?'A thought meets a plan.':'A small idea for your neighborhood.'}</h1><p className="intro">{step===0?'Go somewhere you already want to go. Come back with a thought about the place. We’ll help you find where that thought belongs.':step===1?'Tell us what you remember, not what you think you were supposed to notice. One memorable stop is enough.':step===2?'Your experience comes first. A documented proposal adds context; it doesn’t tell you how to feel.':'Keep your own voice. An idea can begin with a feeling, without pretending to be a finished design.'}</p></div>
    <div role="status" aria-live="polite" className={notice?'notice':'status-empty'}>{notice}</div>
    {sourceError&&<p role="alert" className="error">{sourceError}</p>}
+   {(step===0||step===1)&&<><PlaceMap places={project?.placeOptions||[]} selected={step===0?destinationPoint:current.point} disabled={busy} onChoose={(point,place)=>{
+    if(step===0){setDestinationPoint(point);setDestination(place?.label||'');setHeadingOut(false)}
+    else{patch(current.id,{point,place:place?.label||'',placeId:place?.id||'',confirmed:false},true)}
+   }}/>
+   {step===1&&<div className="map-stop-target"><label htmlFor="map-stop">Map selection applies to</label><select id="map-stop" value={current.id} disabled={busy} onChange={event=>setActive(event.target.value)}>{stops.map((stop,index)=><option key={stop.id} value={stop.id}>Stop {index+1}{stop.place?' · '+stop.place:''}</option>)}</select></div>}</>}
    {step===0&&<div className="two-column">
     <section className="panel notebook"><p className="eyebrow">01 / A loose plan</p><h2>Where are you headed?</h2><label htmlFor="destination">A place, a familiar corner, a plan with friends</label><input id="destination" value={destination} maxLength={200} onChange={event=>setDestination(event.target.value)} placeholder="A café in Long Island City, then wherever we feel like…"/>
      {!headingOut?<><p className="helper">No route to reconstruct. No checklist to carry.</p><div className="button-row"><button className="primary" onClick={()=>setHeadingOut(true)}>I’m heading out <Arrow/></button><button className="secondary" onClick={()=>move(1)}>I’m already back</button></div></>:<div className="outdoor-note" role="status"><h3>That’s enough screen time.</h3><p>{destination.trim()?'Enjoy '+destination.trim()+'.':'Enjoy your plans.'} Walk, talk, stop somewhere unexpected. There’s nothing you need to record.</p><button className="secondary" onClick={()=>move(1)}>Back from your outing?</button></div>}
@@ -93,14 +101,14 @@ export default function App(){
    </div>}
    {step===1&&<div className="reflection-layout"><section aria-label="Your stops" className="stop-list">{stops.map((stop,index)=><article className="panel stop-card" key={stop.id}><div className="section-top"><p className="eyebrow">Stop {String(index+1).padStart(2,'0')}</p>{stops.length>1&&<button className="text-button" disabled={stop.busy||draftBusy} onClick={()=>{if((stop.observation||stop.change)&&!window.confirm('Remove this stop and its unsaved reflection?'))return;setStops(items=>items.filter(item=>item.id!==stop.id))}}>Remove stop {index+1}</button>}</div>
      <fieldset disabled={stop.busy}><legend className="sr-only">Stop {index+1} reflection</legend>
-      <label htmlFor={'place-'+stop.id}>Where did you spend time?</label><input id={'place-'+stop.id} value={stop.place} maxLength={200} onChange={event=>patch(stop.id,{place:event.target.value},true)} placeholder="A street, plaza, park, or landmark"/>
+      <label htmlFor={'place-'+stop.id}>Where did you spend time?</label><input id={'place-'+stop.id} value={stop.place} maxLength={200} onFocus={()=>setActive(stop.id)} onChange={event=>patch(stop.id,{place:event.target.value,placeId:'',confirmed:false},true)} placeholder="A street, plaza, park, or landmark"/>
       <label htmlFor={'observation-'+stop.id}>What did it feel like to be there?</label><textarea id={'observation-'+stop.id} value={stop.observation} maxLength={4000} rows={5} onChange={event=>patch(stop.id,{observation:event.target.value},true)} placeholder="We stayed longer than we expected. There was room to sit together, but…"/><p className="helper">Enjoyment, discomfort, a wish, or “I don’t remember.” Your words are enough.</p>
-      <label htmlFor={'location-'+stop.id}>Is this one of our reviewed locations?</label><select id={'location-'+stop.id} disabled={sourceLoading||!project} value={stop.placeId} onChange={event=>patch(stop.id,{placeId:event.target.value,confirmed:false},true)}><option value="">Somewhere else / not sure</option>{project?.placeOptions.map(place=><option key={place.id} value={place.id}>{place.label}</option>)}</select>
+      <label htmlFor={'location-'+stop.id}>Is this one of our reviewed locations?</label><select id={'location-'+stop.id} disabled={sourceLoading||!project} value={stop.placeId} onChange={event=>{const place=project?.placeOptions.find(item=>item.id===event.target.value);patch(stop.id,{placeId:event.target.value,confirmed:false,point:place?.coordinates},true)}}><option value="">Somewhere else / not sure</option>{project?.placeOptions.map(place=><option key={place.id} value={place.id}>{place.label}</option>)}</select>
       {stop.placeId&&<label className="checkbox-label"><input type="checkbox" checked={stop.confirmed} onChange={event=>patch(stop.id,{confirmed:event.target.checked},true)}/><span>I recognize this as the location I mean. This does not confirm where every observation happened.</span></label>}
      </fieldset>
      {stop.error&&<p role="alert" className="error">{stop.error} Your original words remain above.</p>}
      <button className="primary" disabled={busy||sourceLoading} onClick={()=>connect(stop)}>{stop.busy?'Considering your reflection…':'Find the connection'} {!stop.busy&&<Arrow/>}</button>
-    </article>)}<button className="secondary add-stop" disabled={busy||stops.length>=6} onClick={()=>setStops(items=>[...items,freshStop()])}>+ Add another stop</button></section>
+    </article>)}<button className="secondary add-stop" disabled={busy||stops.length>=6} onClick={()=>{const stop=freshStop();setStops(items=>[...items,stop]);setActive(stop.id)}}>+ Add another stop</button></section>
     <aside className="margin-note"><span className="hand-note">You don’t need to remember every street.</span><p>Start with the place you recognize and the feeling that stayed with you. A nearby proposal isn’t automatically the right one.</p><p>Nothing here is saved after you close or reload this page. Keep a copy of any draft you want to retain.</p></aside>
    </div>}
    {(step===2||step===3)&&<><div className="stop-picker" aria-label="Choose a stop">{stops.map((stop,index)=><button className={current.id===stop.id?'secondary selected':'secondary'} key={stop.id} onClick={()=>{setActive(stop.id);setNotice('')}} aria-pressed={current.id===stop.id}>{stop.place||'Stop '+(index+1)}</button>)}</div>

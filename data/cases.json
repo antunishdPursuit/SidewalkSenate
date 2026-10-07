@@ -11,7 +11,16 @@
         "aliases": [
           "thomson avenue at jackson avenue",
           "thomson and jackson"
-        ]
+        ],
+        "coordinates": {
+          "lat": 40.7468246,
+          "lng": -73.9433013
+        },
+        "coordinateSource": {
+          "url": "https://www.openstreetmap.org/node/2971841366",
+          "checkedDate": "2026-10-07",
+          "note": "Reference intersection node, not a project boundary; OpenStreetMap contributors, ODbL."
+        }
       },
       {
         "id": "pearson-jackson",
@@ -19,14 +28,32 @@
         "aliases": [
           "pearson street at jackson avenue",
           "pearson and jackson"
-        ]
+        ],
+        "coordinates": {
+          "lat": 40.7460905,
+          "lng": -73.9448564
+        },
+        "coordinateSource": {
+          "url": "https://www.openstreetmap.org/node/2971841353",
+          "checkedDate": "2026-10-07",
+          "note": "Reference intersection node, not a project boundary; OpenStreetMap contributors, ODbL."
+        }
       },
       {
         "id": "court-square-west",
         "label": "Court Square West at Jackson Avenue",
         "aliases": [
           "court square west at jackson avenue"
-        ]
+        ],
+        "coordinates": {
+          "lat": 40.7464383,
+          "lng": -73.9439862
+        },
+        "coordinateSource": {
+          "url": "https://www.openstreetmap.org/node/42844271",
+          "checkedDate": "2026-10-07",
+          "note": "Reference intersection node, not a project boundary; OpenStreetMap contributors, ODbL."
+        }
       }
     ],
     "source": {
