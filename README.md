@@ -62,3 +62,34 @@ No GPS, geocoding, route recording or paid map service is used. OpenStreetMap re
 Preparation actions appear before the optional map; the map is hidden when heading out. Source loading can be retried without losing writing. Map and dropdown selections share the same location rules, and renaming a reviewed place requires confirmation again. Resident suggestions survive context changes; generated suggestions and drafts are cleared when their inputs change. Pending requests lock editing and cannot override later navigation or attach stale results.
 
 `npm test` includes actual React component interactions in JSDOM as well as state and HTTP checks. Test rendering writes only to ignored `output/ui-test`; it makes no public map-tile requests. These checks do not replace rendered accessibility, real-device, outdoor, or real-model validation.
+
+## Download and run locally
+
+Download the source ZIP (when the repository is published), extract it fully, and open a terminal inside the extracted folder containing `package.json`. Git is optional. The source ZIP is not a phone application. No deployment or account is needed.
+
+Install Node.js 24 or newer from https://nodejs.org/en/download. First-time setup needs internet for npm packages; it uses the locked dependency versions. In that folder run:
+
+```powershell
+npm run setup
+npm run local
+```
+
+Open the printed `http://127.0.0.1:4178` address in your browser. Keep the terminal open. Ctrl+C stops the website. Later starts need only `npm run local`. `npm run doctor` checks dependencies, the build and model-service health without starting the website. A missing model is a warning, not an automatic download. If port 4178 is busy, stop your own earlier instance or set another local port (`$env:PORT='4179'` in PowerShell). Do not expose the server to a network or forward its ports.
+
+### Enable real local AI
+
+The model and runtime are separate downloads and are not bundled in this source ZIP. Use a Gemma-compatible llama.cpp release and a compatible Gemma Instruct GGUF. Follow the model publisher's license and download instructions; record the chosen model revision and quantization. Current supported API: local `/v1/chat/completions` with JSON-schema response formatting. llama.cpp documentation: https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md. Runtime releases: https://github.com/ggml-org/llama.cpp/releases. Gemma information: https://ai.google.dev/gemma/docs.
+
+With `llama-server` available in your terminal, replace the quoted path with your downloaded Gemma GGUF:
+
+```powershell
+llama-server -m "PATH_TO_YOUR_GEMMA_INSTRUCT.gguf" --host 127.0.0.1 --port 8187 -c 4096
+```
+
+Keep that separate terminal running, then run `npm run local` in this project. GPU acceleration and optional model-specific arguments depend on your runtime/model; consult their documentation. The earlier development run used Gemma 4 E4B with llama.cpp; this generic command is not a verified installation on every machine. RAM/VRAM needs and speed vary by model and quantization, so no universal hardware minimum is claimed. The setup checker verifies health only; an actual supported-location reflection verifies inference. No closed model fallback exists.
+
+### Try an outing
+
+At home, optionally enter your plan and select **I'm heading out**. Close the website and enjoy the outing; no recording or tracking is needed. When home, reopen it and choose **I'm already back**. Enter the places you recognize and how they felt. Confirm a reviewed location only if it is genuinely the place you mean. Review AI connections separately from your own words, edit a suggestion, explicitly approve the wording, and format/copy the unsent draft.
+
+Preparation is optional and is not saved across reloads. Maps need internet; already-downloaded application files and local inference do not require a paid API. Unsupported places still support your own suggestion without a fabricated proposal match. Nothing is emailed or submitted.

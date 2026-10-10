@@ -13,7 +13,10 @@
     "walk": "node src/walk.mjs",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "setup": "node scripts/local.mjs --setup",
+    "doctor": "node scripts/local.mjs --check",
+    "local": "node scripts/local.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
