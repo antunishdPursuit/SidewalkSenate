@@ -10,9 +10,10 @@ if (Number(process.versions.node.split('.')[0]) < 24) {
   console.error('Install Node.js 24 or newer from https://nodejs.org, then reopen your terminal.');
   process.exit(1);
 }
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmEntry = process.env.npm_execpath;
 function run(args) {
-  const result = spawnSync(npm, args, { cwd: root, stdio: 'inherit', shell: process.platform === 'win32' });
+  if (!npmEntry) { console.error('Start setup with npm run setup.'); process.exit(1); }
+  const result = spawnSync(process.execPath, [npmEntry, ...args], { cwd: root, stdio: 'inherit' });
   if (result.error || result.status !== 0) {
     console.error('Could not finish npm ' + args.join(' ') + '. Check the message above.');
     process.exit(result.status || 1);

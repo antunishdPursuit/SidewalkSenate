@@ -93,3 +93,7 @@ Keep that separate terminal running, then run `npm run local` in this project. G
 At home, optionally enter your plan and select **I'm heading out**. Close the website and enjoy the outing; no recording or tracking is needed. When home, reopen it and choose **I'm already back**. Enter the places you recognize and how they felt. Confirm a reviewed location only if it is genuinely the place you mean. Review AI connections separately from your own words, edit a suggestion, explicitly approve the wording, and format/copy the unsent draft.
 
 Preparation is optional and is not saved across reloads. Maps need internet; already-downloaded application files and local inference do not require a paid API. Unsupported places still support your own suggestion without a fabricated proposal match. Nothing is emailed or submitted.
+
+### Reproduce the labelled simulation
+
+Run `npm run simulate` to see a fictional two-stop outing through the real local HTTP handlers. The script uses an ephemeral loopback server and explicitly labelled mock AI; it does not require a model or make external requests. It prints the source citation and unsent draft, checks the confirmation and review gates, and verifies that an unsupported stop gets no invented match. It stops its own server afterward. This is workflow evidence, not a real visit or evidence of Gemma quality. `npm test` separately exercises the actual React screens, navigation and writing preservation.

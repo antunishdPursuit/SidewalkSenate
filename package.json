@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "setup": "node scripts/local.mjs --setup",
     "doctor": "node scripts/local.mjs --check",
-    "local": "node scripts/local.mjs"
+    "local": "node scripts/local.mjs",
+    "simulate": "node scripts/simulate.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

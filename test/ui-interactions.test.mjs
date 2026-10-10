@@ -118,4 +118,26 @@ test('preparation pin survives naming and the map disappears on departure',async
  assert.equal(document.querySelector('.place-map'),null);
  assert.match(text(),/Enjoy A friendly name/);
 });
+
+test('simulated outing returns fresh, connects a supported stop and copies an explicitly reviewed draft',async()=>{
+ await mount();await input('#destination','SIMULATED: Walk with friends');await click('I’m heading out');
+ assert.equal(document.querySelector('.place-map'),null);
+ // Closing/reopening deliberately loses optional preparation; returning needs no stored itinerary.
+ await mount();assert.equal(document.querySelector('#destination').value,'');
+ await click('I’m already back');await click('1. '+label);
+ await input('textarea[id^="observation-"]','SIMULATED: We enjoyed walking together but felt hurried.');
+ await act(async()=>document.querySelector('input[type="checkbox"]').click());
+ await click('Find the connection');assert.match(text(),/A possible connection/);
+ await click('Shape my suggestion');await input('#change','SIMULATED RESIDENT EDIT: Could we discuss crossing together?');
+ await act(async()=>document.querySelector('input[type="checkbox"]').click());await click('Format an unsent draft');
+ let copied;Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{copied=value}}});
+ await click('Copy draft');assert.match(copied,/SIMULATED RESIDENT EDIT/);assert.match(copied,/We enjoyed walking together/);
+ await click('Back from your outing');await click('+ Add another stop');
+ const inputs=[...document.querySelectorAll('input[id^="place-"]')];
+ const observations=[...document.querySelectorAll('textarea[id^="observation-"]')];
+ await input('#'+inputs[1].id,'SIMULATED unreviewed cafe');await input('#'+observations[1].id,'SIMULATED: We liked talking there.');
+ const connections=[...document.querySelectorAll('button')].filter(item=>item.textContent.trim().replace(/\s*↗$/,'')==='Find the connection');
+ await act(async()=>connections[1].click());assert.match(text(),/No reviewed match/);
+});
+
 test.after(async()=>{if(root)await act(async()=>root.unmount());globalThis.fetch=originalFetch;dom.window.close()});
