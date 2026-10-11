@@ -6,18 +6,8 @@ export default function ConnectionView({ current, move }: Props) {
       <div className="stack">
         {current.busy && (
           <p role="status" className="notice">
-            Considering your reflection. You can view other steps while you
+            Considering your reflection. You can view other workspaces while you
             wait.
-          </p>
-        )}
-        {current.error && (
-          <p role="alert" className="error">
-            {current.error}
-          </p>
-        )}
-        {!current.busy && current.message && (
-          <p role="status" className="notice">
-            {current.message}
           </p>
         )}
         <section className="panel">

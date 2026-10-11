@@ -134,6 +134,7 @@ test('simulated outing returns fresh, connects a supported stop and copies an ex
  await act(async()=>document.querySelector('input[type="checkbox"]').click());await click('Format an unsent draft');
  let copied;Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{copied=value}}});
  await click('Copy draft');assert.match(copied,/SIMULATED RESIDENT EDIT/);assert.match(copied,/We enjoyed walking together/);
+ assert.equal([...document.querySelectorAll('[role="status"]')].filter(item=>item.textContent.includes('Draft copied')).length,1);
  await click('My outing');await click('+ Add another stop');
  const inputs=[...document.querySelectorAll('input[id^="place-"]')];
  const observations=[...document.querySelectorAll('textarea[id^="observation-"]')];
@@ -165,6 +166,7 @@ test('Start over clears a copied draft and clipboard rejection has a manual fall
  await click('Format an unsent draft');
  Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw new Error('denied')}}});
  await click('Copy draft');assert.match(text(),/Clipboard is unavailable/);
+ assert.equal([...document.querySelectorAll('[role="status"]')].filter(item=>item.textContent.includes('Clipboard is unavailable')).length,1);
  await click('Start over');await click('Clear outing');
  await click('Connection & draft');assert.equal(document.querySelector('pre'),null);
  assert.equal(document.querySelector('#change'),null);
@@ -188,6 +190,16 @@ test('pending analysis never overrides a stop selected while waiting',async()=>{
  assert.equal(document.querySelector('input[id^="place-"]').value,'Stop B');
  assert.equal(document.querySelector('textarea').value,'B recollection');
  await click('Stop A');await click('Connection & draft');assert.match(text(),/No reviewed match/);
+});
+test('combined workspace announces an API failure once',async()=>{
+ await mount();await click('I’m already back');await fillStop();
+ const mockedFetch=globalThis.fetch;
+ try {
+  globalThis.fetch=async()=>{throw new TypeError('offline')};
+  await click('Find the connection');await click('Connection & draft');
+  assert.equal(document.querySelectorAll('[role="alert"]').length,1);
+  assert.match(document.querySelector('[role="alert"]').textContent,/Your words are still here/);
+ } finally {globalThis.fetch=mockedFetch;}
 });
 test('real local AI outing through the actual React workspaces', {skip:process.env.LOCAL_UI_REAL !== '1'}, async()=>{
  const mockedFetch=globalThis.fetch;
