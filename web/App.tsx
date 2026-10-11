@@ -279,9 +279,8 @@ export default function App() {
         <div className="button-row"><button className="secondary" autoFocus onClick={() => resetDialog.current?.close()}>Keep this outing</button><button className="primary" onClick={reset}>Clear outing</button></div>
       </dialog>
       <main id="main" tabIndex={-1}>
-        <div className={"page-heading map-intro" + (step === 1 ? " outing-heading" : "")}><h1>{step === 0 ? "Turn an outing into a neighborhood idea." : step === 1 ? "My outing" : "Connection & draft"}</h1><p className="intro">{step === 0 ? "Plan something you already want to do, enjoy it away from the screen, then return with a thought. Local AI connects your experience to a proposal where we have a match and helps you draft a suggestion." : step === 1 ? "Start with a place you visited and how it felt." : "Review the connection, then write in your own voice."}</p></div>
-        {step < 2 && <div className="outing-modes" role="group" aria-label="Outing mode"><button className={step === 0 ? "secondary selected" : "secondary"} aria-pressed={step === 0} onClick={editPlan}>Before I go</button><button className={step === 1 ? "secondary selected" : "secondary"} aria-pressed={step === 1} onClick={() => move(1)}>I’m back</button></div>}
-        {step === 1 && <div className="stop-picker" role="group" aria-label="Choose a stop">{stops.map((stop,index) => <button key={stop.id} className={current.id === stop.id ? "secondary selected" : "secondary"} aria-pressed={current.id === stop.id} onClick={() => selectStop(stop.id)}>{stop.place || "Stop " + (index + 1)}</button>)}</div>}
+        {step !== 1 && (<div className={"page-heading map-intro" + (step === 1 ? " outing-heading" : "")}><h1>{step === 0 ? "Turn an outing into a neighborhood idea." : step === 1 ? "My outing" : "Connection & draft"}</h1><p className="intro">{step === 0 ? "Plan something you already want to do, enjoy it away from the screen, then return with a thought. Local AI connects your experience to a proposal where we have a match and helps you draft a suggestion." : step === 1 ? "Start with a place you visited and how it felt." : "Review the connection, then write in your own voice."}</p></div>)}
+        {step === 0 && <div className="outing-modes" role="group" aria-label="Outing mode"><button className="secondary selected" aria-pressed={true} onClick={editPlan}>Before I go</button><button className="secondary" aria-pressed={false} onClick={() => move(1)}>I’m back</button></div>}
         {sourceError && (
           <div className="error">
             <p role="alert">{sourceError}</p>
@@ -296,6 +295,10 @@ export default function App() {
         )}
         <div className={step === 1 ? "outing-grid" : undefined}>
         {step === 1 && (
+          <div className="outing-map-column">
+            <div className="page-heading map-intro outing-heading"><h1>My outing</h1><p className="intro">Start with a place you visited and how it felt.</p></div>
+        {step === 1 && <div className="outing-modes" role="group" aria-label="Outing mode"><button className="secondary" aria-pressed={false} onClick={editPlan}>Before I go</button><button className="secondary selected" aria-pressed={true} onClick={() => move(1)}>I’m back</button></div>}
+        {step === 1 && <div className="stop-picker" role="group" aria-label="Choose a stop">{stops.map((stop,index) => <button key={stop.id} className={current.id === stop.id ? "secondary selected" : "secondary"} aria-pressed={current.id === stop.id} onClick={() => selectStop(stop.id)}>{stop.place || "Stop " + (index + 1)}</button>)}</div>}
           <PlaceMap
             target={"Stop " + (stops.indexOf(current) + 1)}
             places={project?.placeOptions || emptyPlaces}
@@ -305,6 +308,7 @@ export default function App() {
               chooseLocation(current.id, point, place)
             }
           />
+          </div>
         )}
         {step === 0 && (
           <BeforeOuting
