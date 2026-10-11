@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
 import PlaceMap, { type MapPlace, type Point } from "./PlaceMap";
 type Props = {
+  sidebar: ReactNode;
   destination: string;
   setDestination: (value: string) => void;
   headingOut: boolean;
@@ -12,6 +14,7 @@ type Props = {
   disabled: boolean;
 };
 export default function BeforeOuting({
+  sidebar,
   destination,
   setDestination,
   headingOut,
@@ -25,7 +28,8 @@ export default function BeforeOuting({
 }: Props) {
   return (
     <>
-      <div className={headingOut ? undefined : "outing-grid"}>
+      <div className={headingOut ? "outing-grid departure-grid" : "outing-grid outing-with-sidebar"}>
+        {sidebar}
         {!headingOut && <PlaceMap places={places} selected={point} disabled={disabled} onChoose={onChoose} />}
         <section className="panel notebook">
           <h2>Where are you headed?</h2>

@@ -4,7 +4,7 @@
  --canvas:#F6F3EA;--surface:#FFFFFF;--ink:#202B26;--muted:#56645B;--action:#244D3D;--action-text:#FFFFFF;--divider:#CBD2C8;--input-border:#56645B;--focus:#8B431D;--gentle:#EAF0E6;--error-bg:#F8EEE8;
  --font-body:'Segoe UI',system-ui,sans-serif;--font-note:Kalam,'Segoe Print','Comic Sans MS',cursive;
  --body:1rem;--small:.875rem;--section:1.75rem;--hero:clamp(2.25rem,5vw,3.5rem);--line-body:1.6;--line-small:1.4;--line-heading:1.3;--line-hero:1.15;
- --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--s16:64px;--control:44px;--radius-panel:12px;--radius-control:8px;--radius-pill:999px;--border:1px;--border-strong:2px;--focus-width:3px;--measure:68ch;--app-width:1120px;--transition:150ms;--mark-size:2.75rem;
+ --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--s16:64px;--control:44px;--radius-panel:12px;--radius-control:8px;--radius-pill:999px;--border:1px;--border-strong:2px;--focus-width:3px;--measure:68ch;--app-width:1440px;--sidebar-width:15rem;--outing-form-width:20rem;--transition:150ms;--mark-size:2.75rem;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--canvas);color:var(--ink);font:var(--body)/var(--line-body) var(--font-body)}
@@ -127,3 +127,12 @@ footer{margin-top:var(--s6);padding:var(--s4) 0}
 dialog{max-width:var(--measure);width:calc(100% - var(--s8));padding:var(--s6);border:var(--border) solid var(--divider);border-radius:var(--radius-panel);background:var(--surface);color:var(--ink)}
 dialog::backdrop{background:var(--ink);opacity:var(--backdrop-opacity)}
 @media(max-width:767px){.topbar .wordmark{flex:1 1 auto}.workspace-nav{order:3;width:100%;margin-left:0}.outing-grid,.review-grid{grid-template-columns:minmax(0,1fr)}.outing-heading{flex-direction:column;gap:var(--s2)}}
+
+/* Outing controls occupy their own column beside the map. */
+.outing-with-sidebar{grid-template-columns:var(--sidebar-width) minmax(0,1fr) var(--outing-form-width)}
+.departure-grid{grid-template-columns:var(--sidebar-width) minmax(0,1fr)}
+.outing-sidebar .page-heading{padding-top:0}
+.outing-sidebar .outing-modes{align-items:stretch;flex-direction:column}
+.outing-sidebar .stop-picker{flex-direction:column}
+@media(min-width:768px) and (max-width:1199px){.outing-with-sidebar{grid-template-columns:var(--sidebar-width) minmax(0,1fr)}.outing-with-sidebar>.reflection-workspace,.outing-with-sidebar>.notebook{grid-column:2}}
+@media(max-width:767px){.outing-with-sidebar,.departure-grid{grid-template-columns:minmax(0,1fr)}.outing-sidebar .outing-modes,.outing-sidebar .stop-picker{flex-direction:row;flex-wrap:wrap}}
