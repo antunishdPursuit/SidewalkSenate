@@ -2,6 +2,8 @@
 
 A new local-first prototype connecting everyday outings with dated public-space proposals and resident suggestions.
 
+[Source repository](https://github.com/antunishdPursuit/SidewalkSenate) · [Download source ZIP](https://github.com/antunishdPursuit/SidewalkSenate/archive/refs/heads/main.zip)
+
 ## Current scope
 
 A local website with two notebook workspaces: **My outing** and **Connection & draft**. A local API and an optional interactive terminal session support the same source-backed workflow. Current coverage is one curated Court Square project with three reference intersections. Other places can still support a resident-written suggestion without an invented proposal match.
@@ -81,7 +83,7 @@ Preparation controls occupy the left sidebar beside the map; the map is hidden w
 
 ## Download and run locally
 
-Download the source ZIP (when the repository is published), extract it fully, and open a terminal inside the extracted folder containing `package.json`. Git is optional. The source ZIP is not a phone application. No deployment or account is needed.
+Download the [source ZIP](https://github.com/antunishdPursuit/SidewalkSenate/archive/refs/heads/main.zip), extract it fully, and open a terminal inside the extracted folder containing `package.json`. Git is optional. The source ZIP is not a phone application. No deployment or account is needed.
 
 Install Node.js 24 or newer from https://nodejs.org/en/download. First-time setup needs internet for npm packages; it uses the locked dependency versions. In that folder run:
 
@@ -164,4 +166,4 @@ Documentation updated October 11, 2026 to match the final map/sidebar revision.
 - GPT-6 Astra and Claude Opus 5.5 reviewed the spacing implementation from source. Their confirmed findings were corrected. These reviews do not establish rendered layout or accessibility behavior.
 - Automated browser verification was unavailable for the latest revision. Final rendered map controls, 320px reflow, 200% zoom, native dialog focus, actual OS clipboard and screen-reader behavior remain unverified. JSDOM simulates clipboard and dialog mechanics. Earlier rendered checks are historical evidence, not verification of the latest layout.
 - No real outdoor or actual-phone test is claimed. A real outing, final manual browser rehearsal and demo recording remain pending. A recorded simulation must be labelled as simulated.
-- The repository and source archive remain local; no deployment, public code release or challenge post is completed. A demo video and submission write-up are still to be prepared. Publication is a separate step from testing or creating a local commit.
+- The source repository is on GitHub; the website still runs locally and is not deployed. A demo video and submission write-up are still to be prepared; no challenge post is completed. Publishing source code is separate from deploying the website or submitting the challenge entry.
