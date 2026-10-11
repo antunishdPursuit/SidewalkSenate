@@ -13,7 +13,7 @@ button,a,input,textarea,select{touch-action:manipulation}
 button{cursor:pointer}
 button:disabled{cursor:not-allowed;opacity:.6}
 a{color:var(--action);text-underline-offset:var(--s1);overflow-wrap:anywhere}
-button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,pre:focus-visible{outline:var(--focus-width) solid var(--focus);outline-offset:var(--focus-width)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,pre:focus-visible,.stop-card:focus{outline:var(--focus-width) solid var(--focus);outline-offset:var(--focus-width)}
 .app{max-width:var(--app-width);margin:auto;padding:0 var(--s8)}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:var(--s6);padding:var(--s8) 0;border-bottom:var(--border) solid var(--divider)}
 .wordmark{display:flex;align-items:center;gap:var(--s3);font-family:var(--font-note);font-size:var(--section);line-height:var(--line-heading);color:var(--ink);text-decoration:none;overflow-wrap:normal}
