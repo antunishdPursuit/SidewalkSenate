@@ -4,6 +4,7 @@ import type { MapPlace, Point } from "./PlaceMap";
 import { freshStop } from "./stop-state";
 type Props = {
   stops: Stop[];
+  activeId: string;
   busy: boolean;
   draftBusy: boolean;
   sourceLoading: boolean;
@@ -21,6 +22,7 @@ type Props = {
 
 export default function ReflectionForm({
   stops,
+  activeId,
   busy,
   draftBusy,
   sourceLoading,
@@ -32,9 +34,9 @@ export default function ReflectionForm({
   chooseLocation,
 }: Props) {
   return (
-    <div className="reflection-layout">
+    <div className="reflection-workspace">
       <section aria-label="Your stops" className="stop-list">
-        {stops.map((stop, index) => (
+        {stops.filter(stop => stop.id === activeId).map((stop) => (
           <article
             className="panel stop-card"
             key={stop.id}
@@ -42,7 +44,7 @@ export default function ReflectionForm({
           >
             <div className="section-top">
               <p className="eyebrow">
-                Stop {String(index + 1).padStart(2, "0")}
+                Stop {String(stops.indexOf(stop) + 1).padStart(2, "0")}
               </p>
               {stops.length > 1 && (
                 <button
@@ -64,12 +66,12 @@ export default function ReflectionForm({
                     );
                   }}
                 >
-                  Remove stop {index + 1}
+                  Remove stop {stops.indexOf(stop) + 1}
                 </button>
               )}
             </div>
             <fieldset disabled={busy}>
-              <legend className="sr-only">Stop {index + 1} reflection</legend>
+              <legend className="sr-only">Stop {stops.indexOf(stop) + 1} reflection</legend>
               <label htmlFor={"place-" + stop.id}>
                 Where did you spend time?
               </label>
@@ -173,19 +175,7 @@ export default function ReflectionForm({
           + Add another stop
         </button>
       </section>
-      <aside className="margin-note">
-        <span className="hand-note">
-          You don’t need to remember every street.
-        </span>
-        <p>
-          Start with the place you recognize and the feeling that stayed with
-          you. A nearby proposal isn’t automatically the right one.
-        </p>
-        <p>
-          Nothing here is saved after you close or reload this page. Keep a copy
-          of any draft you want to retain.
-        </p>
-      </aside>
+
     </div>
   );
 }

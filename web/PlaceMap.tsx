@@ -119,61 +119,26 @@ export default function PlaceMap({
   }, [selected]);
   return (
     <section className="map-panel" aria-label="Choose a place on the map">
-      <div className="map-heading">
-        <div>
-          <p className="eyebrow">11101 · Long Island City</p>
-          <h2>
-            {target
-              ? "Choose a place for " + target + "."
-              : "Choose a place on the map."}
-          </h2>
-        </div>
-        <span className="helper">Numbered pins = reviewed locations</span>
-      </div>
-      <p className="helper">
-        Choose a numbered location below or on the map. You can also tap another
-        point and name it in the place field. No location permission needed.
-      </p>
+      <p className="helper">{target ? target + " · " : ""}Choose a pin or tap anywhere and name the place.</p>
       <div
         ref={element}
         className="place-map"
         role="region"
-        aria-label="Interactive neighborhood map. Arrow keys pan; plus and minus zoom. Reviewed locations are also listed below."
+        aria-label="Interactive neighborhood map. Arrow keys pan; plus and minus zoom. Reviewed locations are available in the place selector."
       />
       {failed && (
         <p role="status" className="error">
-          The map background could not load. Use the location buttons or type a
+          The map background could not load. Use the place selector or type a
           place below; your reflection still works.
         </p>
       )}
-      <div className="map-places" aria-label="Reviewed locations">
-        {places.map((place, index) => (
-          <button
-            type="button"
-            className="secondary"
-            key={place.id}
-            disabled={disabled}
-            onClick={() => choose.current(place.coordinates, place)}
-          >
-            {index + 1}. {place.label}
-          </button>
-        ))}
-      </div>
+      {!target && <label className="map-location-label">Reviewed locations<select disabled={disabled} value={places.find(place => selected?.lat === place.coordinates.lat && selected?.lng === place.coordinates.lng)?.id || ""} onChange={event => { const place = places.find(item => item.id === event.target.value); if (place) choose.current(place.coordinates,place); }}><option value="">Choose a location, or tap the map</option>{places.map(place => <option key={place.id} value={place.id}>{place.label}</option>)}</select></label>}
       <p className="helper" role="status">
         {selected
           ? "Pin selected. Check the name in the place field."
-          : "Three reference intersections from one dated project, not project boundaries or all nearby proposals."}
+          : "Pins are reference intersections, not project boundaries."}
       </p>
-      {selected && (
-        <p className="helper">
-          Reference coordinates: {selected.lat.toFixed(5)},{" "}
-          {selected.lng.toFixed(5)}
-        </p>
-      )}
-      <p className="helper">
-        Map background: OpenStreetMap (internet required). The provider receives
-        the viewed area and your IP, not your reflection.
-      </p>
+      <details className="helper"><summary>Map details</summary>{selected && <p>Reference coordinates: {selected.lat.toFixed(5)}, {selected.lng.toFixed(5)}</p>}<p>OpenStreetMap requires internet and receives the viewed area and your IP, not your reflection.</p></details>
     </section>
   );
 }

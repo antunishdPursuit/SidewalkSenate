@@ -2,7 +2,7 @@ import type { Stop } from "./stop-state";
 type Props = { current: Stop; move: (index: number) => void };
 export default function ConnectionView({ current, move }: Props) {
   return (
-    <div className="two-column">
+    <div className="stack">
       <div className="stack">
         {current.busy && (
           <p role="status" className="notice">
@@ -90,13 +90,6 @@ export default function ConnectionView({ current, move }: Props) {
             )}
           </section>
         )}
-        <button
-          className="primary"
-          disabled={!current.place.trim() || !current.observation.trim()}
-          onClick={() => move(3)}
-        >
-          Shape my suggestion <Arrow />
-        </button>
       </div>
       <aside className="margin-note">
         {current.source ? (
@@ -113,15 +106,7 @@ export default function ConnectionView({ current, move }: Props) {
               period, or completed construction.
             </p>
           </>
-        ) : (
-          <>
-            <span className="hand-note">No match is an honest answer.</span>
-            <p>
-              Live internet discovery is not connected yet. This first notebook
-              contains one reviewed project.
-            </p>
-          </>
-        )}
+        ) : null}
       </aside>
     </div>
   );

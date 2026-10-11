@@ -18,7 +18,7 @@ export default function SuggestionView({
   copyDraft,
 }: Props) {
   return (
-    <div className="two-column">
+    <div className="stack">
       <section className="panel">
         <p className="eyebrow">Your suggestion · Unsent</p>
         <h2>What would you like to change?</h2>
@@ -48,10 +48,7 @@ export default function SuggestionView({
                 patch(current.id, { observation: event.target.value }, true)
               }
             />
-            <p className="helper">
-              Changing your experience clears its old AI connection and
-              generated suggestion. Suggestions you write yourself stay.
-            </p>
+
             <label htmlFor="change">Your suggested change or question</label>
             <textarea
               id="change"
@@ -134,13 +131,6 @@ export default function SuggestionView({
         )}
       </section>
       <aside className="margin-note">
-        <span className="hand-note">
-          A suggestion, not a finished blueprint.
-        </span>
-        <p>
-          Your experience can start a conversation. It doesn’t need to stand in
-          for every neighbor’s opinion.
-        </p>
         {current.analysis?.suggestion.openQuestions.length ? (
           <>
             <h3>Questions worth keeping open</h3>

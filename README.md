@@ -4,7 +4,7 @@ A new local-first prototype connecting everyday outings with dated public-space 
 
 ## Current increment
 
-React notebook interface, local API and interactive terminal session. One curated Court Square project with three explicitly confirmed street locations. No tracking, Gmail, email sending, account connection, live search, telemetry or persistent reflection storage. Nothing here establishes present street conditions or an open consultation.
+Two-workspace notebook interface (My outing; Connection & draft), local API and interactive terminal session. Start over clears all session writing after an in-page confirmation; pending results are discarded. One curated Court Square project with three explicitly confirmed street locations. No tracking, Gmail, email sending, account connection, live search, telemetry or persistent reflection storage. Nothing here establishes present street conditions or an open consultation.
 
 Requires Node.js 24+. Run npm ci to install the frontend dependencies. No paid API is required.
 
@@ -124,3 +124,17 @@ One earlier response inferred inadequate crossing timing from feeling hurried. T
 Original project code is MIT licensed; see LICENSE. Third-party assets, data and model weights retain their own licenses; see THIRD_PARTY_NOTICES.md. Nothing is publicly published by running setup or either simulation.
 
 Release-check observations (October 10, 2026): the maintained real simulation completed with a dated page-17 connection. Additional fictional cases preserved satisfaction without demanding a change, and returned no connection for an unrelated music conversation. The forgotten-location case retained uncertainty in its summary but still assigned the feeling too confidently in its connection. Positive feedback also received a weak location-only connection. These are known semantic limitations: source-ID validation is not proof of relevance or entailment. Human review remains required; do not present these outputs as verified observations or a community view. No real outdoor, screen-reader or actual-phone validation is claimed.
+
+### Optional real-AI interface test
+
+With the local website and documented Gemma model running, use PowerShell:
+
+```powershell
+$env:LOCAL_UI_REAL = '1'
+npm test
+Remove-Item Env:LOCAL_UI_REAL
+```
+
+This exercises the actual React components in JSDOM against the local HTTP API
+and real model. Clipboard and native dialog mechanics are simulated; it does
+not establish visual layout, map tile rendering or OS clipboard permissions.

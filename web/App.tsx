@@ -23,20 +23,13 @@ type Case = {
   placeOptions: MapPlace[];
   source: Source;
 };
-const steps = [
-  "Before you go",
-  "Back from your outing",
-  "Explore the connection",
-  "Shape your suggestion",
-];
 const emptyPlaces: MapPlace[] = [];
-function Arrow() {
-  return <span aria-hidden="true">↗</span>;
-}
 export default function App() {
   const [step, setStep] = useState(0);
   const previousStep = useRef(0);
   const navigation = useRef(0);
+  const outing = useRef(0);
+  const resetDialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (previousStep.current !== step) {
       document.getElementById("main")?.focus({ preventScroll: true });
@@ -122,14 +115,14 @@ export default function App() {
     navigation.current++;
     setStep(index);
   }
+  function requestReset() {
+    if (dirty || headingOut || busy) resetDialog.current?.showModal();
+    else reset();
+  }
   function reset() {
-    if (
-      dirty &&
-      !window.confirm(
-        "Clear this outing? Your reflections and drafts are not saved.",
-      )
-    )
-      return;
+    outing.current++;
+    resetDialog.current?.close();
+    setDraftBusy(false);
     const first = freshStop();
     setStops([first]);
     setActive(first.id);
@@ -189,6 +182,7 @@ export default function App() {
   async function formatDraft(stop: Stop) {
     if (busy) return;
     const revision = stop.revision;
+    const session = outing.current;
     setDraftBusy(true);
     patch(stop.id, { error: undefined, message: undefined });
     try {
@@ -211,7 +205,7 @@ export default function App() {
             : "Draft unavailable. Your words are still here.",
       });
     } finally {
-      setDraftBusy(false);
+      if (session === outing.current) setDraftBusy(false);
     }
   }
   async function copyDraft(stop: Stop, draft: Draft) {
@@ -239,52 +233,22 @@ export default function App() {
           </span>
           <span>Sidewalk Senate</span>
         </a>
-        <div className="header-actions">
-          <span className="local-label">
-            <span aria-hidden="true">●</span> Your local notebook
-          </span>
-          <button className="text-button" onClick={reset} disabled={busy}>
-            New outing
-          </button>
-        </div>
+        <nav aria-label="Outing workspaces" className="workspace-nav">
+          <button className={step < 2 ? "step current" : "step"} aria-current={step < 2 ? "page" : undefined} onClick={() => move(step < 2 ? step : 1)}>My outing</button>
+          <button className={step >= 2 ? "step current" : "step"} aria-current={step >= 2 ? "page" : undefined} onClick={() => move(2)}>Connection &amp; draft</button>
+        </nav>
+        <button className="secondary reset-button" onClick={requestReset}>Start over</button>
       </header>
-      <nav aria-label="Outing steps" className="steps">
-        {steps.map((label, index) => (
-          <button
-            key={label}
-            className={step === index ? "step current" : "step"}
-            aria-current={step === index ? "step" : undefined}
-            onClick={() => move(index)}
-          >
-            <span className="step-number" aria-hidden="true">
-              0{index + 1}
-            </span>
-            {label}
-          </button>
-        ))}
-      </nav>
+      <dialog ref={resetDialog} aria-labelledby="reset-title" onClose={() => document.querySelector<HTMLButtonElement>('.reset-button')?.focus()}>
+        <h2 id="reset-title">Start a new outing?</h2>
+        <p>This clears all stops, reflections and drafts. Nothing has been saved.</p>
+        {busy && <p className="helper">Pending results will be discarded. Local inference may finish in the background.</p>}
+        <div className="button-row"><button className="secondary" autoFocus onClick={() => resetDialog.current?.close()}>Keep this outing</button><button className="primary" onClick={reset}>Clear outing</button></div>
+      </dialog>
       <main id="main" tabIndex={-1}>
-        <div className={step < 2 ? "page-heading map-intro" : "page-heading"}>
-          <p className="eyebrow">A neighborhood notebook · Queens, NYC</p>
-          <h1>
-            {step === 0
-              ? "Your neighborhood,\nin your own words."
-              : step === 1
-                ? "What stayed with you?"
-                : step === 2
-                  ? "A thought meets a plan."
-                  : "A small idea for your neighborhood."}
-          </h1>
-          <p className="intro">
-            {step === 0
-              ? "Go somewhere you already want to go. Come back with a thought about the place. We’ll help you find where that thought belongs."
-              : step === 1
-                ? "Tell us what you remember, not what you think you were supposed to notice. One memorable stop is enough."
-                : step === 2
-                  ? "Your experience comes first. A documented proposal adds context; it doesn’t tell you how to feel."
-                  : "Keep your own voice. An idea can begin with a feeling, without pretending to be a finished design."}
-          </p>
-        </div>
+        <div className="page-heading map-intro"><h1>{step < 2 ? "My outing" : "Connection & draft"}</h1><p className="intro">{step < 2 ? "Enjoy your plans. Come back with a thought." : "Review the connection, then write in your own voice."}</p></div>
+        {step < 2 && <div className="outing-modes" role="group" aria-label="Outing mode"><button className={step === 0 ? "secondary selected" : "secondary"} aria-pressed={step === 0} onClick={() => move(0)}>Before I go</button><button className={step === 1 ? "secondary selected" : "secondary"} aria-pressed={step === 1} onClick={() => move(1)}>I’m back</button><span className="helper">Pilot: Court Square · One reviewed proposal</span></div>}
+        {step === 1 && <div className="stop-picker" role="group" aria-label="Choose a stop">{stops.map((stop,index) => <button key={stop.id} className={current.id === stop.id ? "secondary selected" : "secondary"} aria-pressed={current.id === stop.id} onClick={() => setActive(stop.id)}>{stop.place || "Stop " + (index + 1)}</button>)}</div>}
         {sourceError && (
           <div className="error">
             <p role="alert">{sourceError}</p>
@@ -297,24 +261,7 @@ export default function App() {
             </button>
           </div>
         )}
-        {step === 1 && (
-          <div className="map-stop-target">
-            <label htmlFor="map-stop">Choose the stop this map will edit</label>
-            <select
-              id="map-stop"
-              value={current.id}
-              disabled={busy}
-              onChange={(event) => setActive(event.target.value)}
-            >
-              {stops.map((stop, index) => (
-                <option key={stop.id} value={stop.id}>
-                  Stop {index + 1}
-                  {stop.place ? " · " + stop.place : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        <div className={step === 1 ? "outing-grid" : undefined}>
         {step === 1 && (
           <PlaceMap
             target={"Stop " + (stops.indexOf(current) + 1)}
@@ -336,7 +283,6 @@ export default function App() {
             headingOut={headingOut}
             setHeadingOut={setHeadingOut}
             onReturn={() => move(1)}
-            project={project}
             places={project?.placeOptions || emptyPlaces}
             point={destinationPoint}
             disabled={busy}
@@ -353,6 +299,7 @@ export default function App() {
         {step === 1 && (
           <ReflectionForm
             stops={stops}
+            activeId={current.id}
             busy={busy}
             draftBusy={draftBusy}
             sourceLoading={sourceLoading}
@@ -364,7 +311,8 @@ export default function App() {
             chooseLocation={chooseLocation}
           />
         )}
-        {(step === 2 || step === 3) && (
+        </div>
+        {step >= 2 && (
           <>
             <div
               className="stop-picker"
@@ -386,9 +334,9 @@ export default function App() {
                 </button>
               ))}
             </div>
-            {step === 2 && <ConnectionView current={current} move={move} />}
-            {step === 3 && (
-              <SuggestionView
+            <div className="review-grid">
+            <ConnectionView current={current} move={move} />
+            <SuggestionView
                 current={current}
                 busy={busy}
                 draftBusy={draftBusy}
@@ -397,13 +345,12 @@ export default function App() {
                 formatDraft={formatDraft}
                 copyDraft={copyDraft}
               />
-            )}
+            </div>
           </>
         )}
       </main>
       <footer>
-        <span>Less time on a screen. More life around you.</span>
-        <span>Local prototype · No tracking · No automatic sending</span>
+        <span>Local prototype · Reflections are not saved · Drafts are never sent</span>
       </footer>
     </div>
   );
