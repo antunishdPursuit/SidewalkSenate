@@ -5,6 +5,7 @@ type Props = {
   headingOut: boolean;
   setHeadingOut: (value: boolean) => void;
   onReturn: () => void;
+  onEditPlan: () => void;
   places: MapPlace[];
   point?: Point;
   onChoose: (point: Point, place?: MapPlace) => void;
@@ -16,6 +17,7 @@ export default function BeforeOuting({
   headingOut,
   setHeadingOut,
   onReturn,
+  onEditPlan,
   places,
   point,
   onChoose,
@@ -58,9 +60,10 @@ export default function BeforeOuting({
                 Walk, talk, stop somewhere unexpected. There’s nothing you need
                 to record.
               </p>
-              <button className="secondary" onClick={onReturn}>
-                Back from your outing?
-              </button>
+              <div className="button-row">
+                <button className="secondary" onClick={onEditPlan}>Edit my plan</button>
+                <button className="primary" onClick={onReturn}>Back from your outing?</button>
+              </div>
             </div>
           )}
         </section>

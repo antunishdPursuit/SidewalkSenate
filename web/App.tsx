@@ -31,6 +31,7 @@ export default function App() {
   const outing = useRef(0);
   const resetDialog = useRef<HTMLDialogElement>(null);
   const removedStopFocus = useRef<string | undefined>(undefined);
+  const planningFocus = useRef(false);
   useEffect(() => {
     if (previousStep.current !== step) {
       document.getElementById("main")?.focus({ preventScroll: true });
@@ -69,6 +70,12 @@ export default function App() {
     removedStopFocus.current = undefined;
   }, [active, stops]);
 
+  useLayoutEffect(() => {
+    if (planningFocus.current && step === 0 && !headingOut) {
+      document.getElementById("destination")?.focus();
+      planningFocus.current = false;
+    }
+  }, [headingOut, step]);
   useEffect(() => {
     let live = true;
     setSourceLoading(true);
@@ -122,6 +129,11 @@ export default function App() {
   function move(index: number) {
     navigation.current++;
     setStep(index);
+  }
+  function editPlan() {
+    planningFocus.current = true;
+    setHeadingOut(false);
+    move(0);
   }
   function selectStop(id: string) {
     navigation.current++;
@@ -248,7 +260,7 @@ export default function App() {
         Skip to content
       </a>
       <header className="topbar">
-        <a className="wordmark" href="#main" onClick={() => move(0)}>
+        <a className="wordmark" href="#main" onClick={editPlan}>
           <span className="mark" aria-hidden="true">
             ss
           </span>
@@ -268,7 +280,7 @@ export default function App() {
       </dialog>
       <main id="main" tabIndex={-1}>
         <div className="page-heading map-intro"><h1>{step < 2 ? "My outing" : "Connection & draft"}</h1><p className="intro">{step < 2 ? "Enjoy your plans. Come back with a thought." : "Review the connection, then write in your own voice."}</p></div>
-        {step < 2 && <div className="outing-modes" role="group" aria-label="Outing mode"><button className={step === 0 ? "secondary selected" : "secondary"} aria-pressed={step === 0} onClick={() => move(0)}>Before I go</button><button className={step === 1 ? "secondary selected" : "secondary"} aria-pressed={step === 1} onClick={() => move(1)}>I’m back</button><span className="helper">Pilot: Court Square · One reviewed proposal</span></div>}
+        {step < 2 && <div className="outing-modes" role="group" aria-label="Outing mode"><button className={step === 0 ? "secondary selected" : "secondary"} aria-pressed={step === 0} onClick={editPlan}>Before I go</button><button className={step === 1 ? "secondary selected" : "secondary"} aria-pressed={step === 1} onClick={() => move(1)}>I’m back</button><span className="helper">Pilot: Court Square · One reviewed proposal</span></div>}
         {step === 1 && <div className="stop-picker" role="group" aria-label="Choose a stop">{stops.map((stop,index) => <button key={stop.id} className={current.id === stop.id ? "secondary selected" : "secondary"} aria-pressed={current.id === stop.id} onClick={() => selectStop(stop.id)}>{stop.place || "Stop " + (index + 1)}</button>)}</div>}
         {sourceError && (
           <div className="error">
@@ -304,6 +316,7 @@ export default function App() {
             headingOut={headingOut}
             setHeadingOut={setHeadingOut}
             onReturn={() => move(1)}
+            onEditPlan={editPlan}
             places={project?.placeOptions || emptyPlaces}
             point={destinationPoint}
             disabled={busy}

@@ -219,6 +219,22 @@ test('removing an active stop selects and focuses a remaining form; cancel prese
   assert.equal(document.activeElement,document.querySelector('.stop-card'));
  } finally {window.confirm=originalConfirm;}
 });
+test('departure can be undone through Edit my plan, Before I go, and the wordmark without clearing writing',async()=>{
+ await mount();await input('.map-location-label select',cases[0].placeOptions[0].id);
+ await input('#destination','My original plan');await click('I’m heading out');
+ await click('Edit my plan');assert.ok(document.querySelector('.place-map'));
+ assert.equal(document.querySelector('#destination').value,'My original plan');
+ assert.ok(document.querySelector('.selected-pin'));
+ assert.equal(document.activeElement,document.querySelector('#destination'));
+ await click('I’m heading out');await click('Before I go');
+ assert.ok(button('I’m heading out'));assert.ok(document.querySelector('.place-map'));
+ await click('I’m heading out');await click('Back from your outing?');await fillStop();
+ await click('Before I go');assert.ok(document.querySelector('.place-map'));
+ assert.equal(document.querySelector('#destination').value,'My original plan');
+ await click('I’m heading out');await act(async()=>document.querySelector('.wordmark').click());
+ assert.ok(button('I’m heading out'));assert.ok(document.querySelector('.place-map'));
+ await click('I’m already back');assert.equal(document.querySelector('textarea').value,'We liked being together.');
+});
 test('real local AI outing through the actual React workspaces', {skip:process.env.LOCAL_UI_REAL !== '1'}, async()=>{
  const mockedFetch=globalThis.fetch;
  globalThis.fetch=(url,options)=>originalFetch(new URL(url,'http://127.0.0.1:4178/'),options);
