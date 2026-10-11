@@ -11,6 +11,7 @@ type Props = {
   project?: { placeOptions: MapPlace[] };
   setActive: (id: string) => void;
   setStops: Dispatch<SetStateAction<Stop[]>>;
+  removeStop: (id: string) => void;
   patch: (id: string, changes: Partial<Stop>, invalidate?: boolean) => void;
   connect: (stop: Stop) => Promise<void>;
   chooseLocation: (
@@ -29,6 +30,7 @@ export default function ReflectionForm({
   project,
   setActive,
   setStops,
+  removeStop,
   patch,
   connect,
   chooseLocation,
@@ -40,7 +42,9 @@ export default function ReflectionForm({
           <article
             className="panel stop-card"
             key={stop.id}
-            onFocus={() => setActive(stop.id)}
+            id={"stop-" + stop.id}
+            tabIndex={-1}
+            aria-label={"Stop " + (stops.indexOf(stop) + 1) + " reflection"}
           >
             <div className="section-top">
               <p className="eyebrow">
@@ -49,7 +53,7 @@ export default function ReflectionForm({
               {stops.length > 1 && (
                 <button
                   className="text-button"
-                  disabled={stop.busy || draftBusy}
+                  disabled={busy}
                   onClick={() => {
                     if (
                       (stop.place ||
@@ -61,9 +65,7 @@ export default function ReflectionForm({
                       )
                     )
                       return;
-                    setStops((items) =>
-                      items.filter((item) => item.id !== stop.id),
-                    );
+                    removeStop(stop.id);
                   }}
                 >
                   Remove stop {stops.indexOf(stop) + 1}

@@ -201,6 +201,24 @@ test('combined workspace announces an API failure once',async()=>{
   assert.match(document.querySelector('[role="alert"]').textContent,/Your words are still here/);
  } finally {globalThis.fetch=mockedFetch;}
 });
+test('removing an active stop selects and focuses a remaining form; cancel preserves it',async()=>{
+ await mount();await click('I’m already back');await input('input[id^="place-"]','Stop A');await input('textarea','A recollection');
+ await click('+ Add another stop');await input('input[id^="place-"]','Stop B');await input('textarea','B recollection');
+ const originalConfirm=window.confirm;
+ try {
+  window.confirm=()=>false;await click('Remove stop 2');
+  assert.equal(document.querySelector('input[id^="place-"]').value,'Stop B');
+  window.confirm=()=>true;await click('Remove stop 2');
+  assert.equal(document.querySelector('input[id^="place-"]').value,'Stop A');
+  assert.equal(document.querySelector('textarea').value,'A recollection');
+  assert.equal(document.activeElement,document.querySelector('.stop-card'));
+  assert.equal(document.querySelector('.stop-picker [aria-pressed="true"]').textContent,'Stop A');
+  await click('+ Add another stop');await input('input[id^="place-"]','Stop C');
+  await click('Stop A');await click('Remove stop 1');
+  assert.equal(document.querySelector('input[id^="place-"]').value,'Stop C');
+  assert.equal(document.activeElement,document.querySelector('.stop-card'));
+ } finally {window.confirm=originalConfirm;}
+});
 test('real local AI outing through the actual React workspaces', {skip:process.env.LOCAL_UI_REAL !== '1'}, async()=>{
  const mockedFetch=globalThis.fetch;
  globalThis.fetch=(url,options)=>originalFetch(new URL(url,'http://127.0.0.1:4178/'),options);

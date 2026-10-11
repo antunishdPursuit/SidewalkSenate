@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import ReflectionForm from "./ReflectionForm";
 import ConnectionView from "./ConnectionView";
@@ -30,6 +30,7 @@ export default function App() {
   const navigation = useRef(0);
   const outing = useRef(0);
   const resetDialog = useRef<HTMLDialogElement>(null);
+  const removedStopFocus = useRef<string | undefined>(undefined);
   useEffect(() => {
     if (previousStep.current !== step) {
       document.getElementById("main")?.focus({ preventScroll: true });
@@ -61,6 +62,13 @@ export default function App() {
     );
   const current = stops.find((stop) => stop.id === active) || stops[0];
   const project = cases[0];
+  useLayoutEffect(() => {
+    const id = removedStopFocus.current;
+    if (!id) return;
+    document.getElementById("stop-" + id)?.focus();
+    removedStopFocus.current = undefined;
+  }, [active, stops]);
+
   useEffect(() => {
     let live = true;
     setSourceLoading(true);
@@ -118,6 +126,15 @@ export default function App() {
   function selectStop(id: string) {
     navigation.current++;
     setActive(id);
+  }
+  function removeStop(id: string) {
+    const index = stops.findIndex(stop => stop.id === id);
+    const remaining = stops.filter(stop => stop.id !== id);
+    if (index < 0 || !remaining.length) return;
+    const next = remaining[Math.min(index, remaining.length - 1)];
+    removedStopFocus.current = next.id;
+    setStops(remaining);
+    selectStop(next.id);
   }
   function requestReset() {
     if (dirty || headingOut || busy) resetDialog.current?.showModal();
@@ -310,6 +327,7 @@ export default function App() {
             project={project}
             setActive={selectStop}
             setStops={setStops}
+            removeStop={removeStop}
             patch={patch}
             connect={connect}
             chooseLocation={chooseLocation}
