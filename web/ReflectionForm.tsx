@@ -48,7 +48,7 @@ export default function ReflectionForm({
           >
             <div className="section-top">
               <p className="eyebrow">
-                Stop {String(stops.indexOf(stop) + 1).padStart(2, "0")}
+                Your outing · Stop {stops.indexOf(stop) + 1}
               </p>
               {stops.length > 1 && (
                 <button
@@ -104,7 +104,7 @@ export default function ReflectionForm({
                 are enough.
               </p>
               <label htmlFor={"location-" + stop.id}>
-                Is this one of our reviewed locations?
+                Does this match a sample proposal location?
               </label>
               <select
                 id={"location-" + stop.id}
@@ -134,7 +134,7 @@ export default function ReflectionForm({
                     }
                   />
                   <span>
-                    I recognize this as the location I mean. This does not
+                    I visited this location. This does not
                     confirm where every observation happened.
                   </span>
                 </label>

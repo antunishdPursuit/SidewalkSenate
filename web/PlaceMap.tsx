@@ -72,13 +72,13 @@ export default function PlaceMap({
   useEffect(() => {
     if (!map.current) return;
     const layer = L.layerGroup().addTo(map.current);
-    places.forEach((place, index) => {
+    places.forEach((place) => {
       const marker = L.marker(place.coordinates, {
-        title: place.label,
-        alt: place.label,
+        title: "Sample proposal location: " + place.label,
+        alt: "Sample proposal location: " + place.label,
         icon: L.divIcon({
           className: "reviewed-pin",
-          html: String(index + 1),
+          html: '<span aria-hidden="true">P</span>',
           iconSize: [44, 44],
           iconAnchor: [22, 22],
         }),
@@ -95,7 +95,7 @@ export default function PlaceMap({
           if (!blocked.current) choose.current(place.coordinates, place);
         }
       });
-      marker.getElement()?.setAttribute("aria-label", place.label);
+      marker.getElement()?.setAttribute("aria-label", "Sample proposal location: " + place.label);
     });
     return () => {
       layer.remove();
@@ -108,7 +108,7 @@ export default function PlaceMap({
       keyboard: false,
       icon: L.divIcon({
         className: "selected-pin",
-        html: '<span aria-hidden="true">×</span>',
+        html: '<span aria-hidden="true">✓</span>',
         iconSize: [44, 44],
         iconAnchor: [22, 22],
       }),
@@ -119,7 +119,8 @@ export default function PlaceMap({
   }, [selected]);
   return (
     <section className="map-panel" aria-label="Choose a place on the map">
-      <p className="helper">{target ? target + " · " : ""}Choose a pin or tap anywhere and name the place.</p>
+      <p className="helper"><strong>Sample proposal locations:</strong> green P markers show three reference intersections in the Court Square example. They are not a route or your outing stops.</p>
+      <p className="helper">{target ? "Your location for " + target + ": choose a sample marker or tap another place you visited, then name it in the form." : "Your plan: choose a sample marker, tap another destination, or type a place in the form."}</p>
       <div
         ref={element}
         className="place-map"
@@ -129,16 +130,16 @@ export default function PlaceMap({
       {failed && (
         <p role="status" className="error">
           The map background could not load. Use the place selector or type a
-          place below; your reflection still works.
+          place in the form; your reflection still works.
         </p>
       )}
-      {!target && <label className="map-location-label">Reviewed locations<select disabled={disabled} value={places.find(place => selected?.lat === place.coordinates.lat && selected?.lng === place.coordinates.lng)?.id || ""} onChange={event => { const place = places.find(item => item.id === event.target.value); if (place) choose.current(place.coordinates,place); }}><option value="">Choose a location, or tap the map</option>{places.map(place => <option key={place.id} value={place.id}>{place.label}</option>)}</select></label>}
+      {!target && <label className="map-location-label">Sample proposal locations<select disabled={disabled} value={places.find(place => selected?.lat === place.coordinates.lat && selected?.lng === place.coordinates.lng)?.id || ""} onChange={event => { const place = places.find(item => item.id === event.target.value); if (place) choose.current(place.coordinates,place); }}><option value="">Choose a sample location (optional)</option>{places.map(place => <option key={place.id} value={place.id}>{place.label}</option>)}</select></label>}
       <p className="helper" role="status">
         {selected
-          ? "Pin selected. Check the name in the place field."
-          : "Pins are reference intersections, not project boundaries."}
+          ? "✓ Your selected place. Check or edit its name in the form."
+          : "No place selected. You can also type your own place."}
       </p>
-      <details className="helper"><summary>Map details</summary>{selected && <p>Reference coordinates: {selected.lat.toFixed(5)}, {selected.lng.toFixed(5)}</p>}<p>OpenStreetMap requires internet and receives the viewed area and your IP, not your reflection.</p></details>
+      <details className="helper"><summary>Map details</summary>{selected && <p>Reference coordinates: {selected.lat.toFixed(5)}, {selected.lng.toFixed(5)}</p>}<p>The sample markers come from one March 2026 proposal, not live search or proof of current conditions. Other places may have no matching proposal.</p><p>OpenStreetMap requires internet and receives the viewed area and your IP, not your reflection.</p></details>
     </section>
   );
 }

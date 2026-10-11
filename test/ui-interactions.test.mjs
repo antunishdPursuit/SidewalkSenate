@@ -235,6 +235,19 @@ test('departure can be undone through Edit my plan, Before I go, and the wordmar
  assert.ok(button('I’m heading out'));assert.ok(document.querySelector('.place-map'));
  await click('I’m already back');assert.equal(document.querySelector('textarea').value,'We liked being together.');
 });
+test('sample proposal markers are separate from resident stops and the purpose is explained',async()=>{
+ await mount();assert.match(text(),/Turn an outing into a neighborhood idea/);assert.match(text(),/Local AI connects your experience/);
+ const markers=[...document.querySelectorAll('.reviewed-pin')];assert.equal(markers.length,3);
+ for(const marker of markers){assert.equal(marker.textContent,'P');assert.match(marker.getAttribute('aria-label'),/^Sample proposal location:/);}
+ assert.match(text(),/They are not a route or your outing stops/);
+ await act(async()=>markers[0].click());assert.equal(document.querySelector('#destination').value,label);
+ assert.equal(document.querySelector('.selected-pin').textContent,'✓');
+ await click('I’m already back');assert.match(text(),/Your outing · Stop 1/);
+ assert.equal(document.querySelector('input[id^="place-"]').value,'','Preparation must not manufacture a visited stop');
+ await act(async()=>document.querySelector('.reviewed-pin').click());
+ assert.equal(document.querySelector('input[id^="place-"]').value,label);
+ assert.equal(document.querySelector('input[type="checkbox"]').checked,false);
+});
 test('real local AI outing through the actual React workspaces', {skip:process.env.LOCAL_UI_REAL !== '1'}, async()=>{
  const mockedFetch=globalThis.fetch;
  globalThis.fetch=(url,options)=>originalFetch(new URL(url,'http://127.0.0.1:4178/'),options);
