@@ -55,6 +55,10 @@ async function mount(){
  root=createRoot(document.querySelector('#root'));
  await act(async()=>root.render(createElement(App)));
 }
+async function chooseReviewedPlace(){
+ if(document.querySelector('#destination')) await act(async()=>document.querySelector('.reviewed-pin').click());
+ else await input('select[id^="location-"]',cases[0].placeOptions[0].id);
+}
 async function fillStop(){
  await input('input[id^="place-"]','A familiar place');
  await input('textarea[id^="observation-"]','We liked being together.');
@@ -84,7 +88,7 @@ test('source retry retains writing and manual no-match drafting remains usable',
 });
 test('reviewed map and dropdown selections agree; naming resets confirmation',async()=>{
  await mount();await click('I’m already back');
- await input(document.querySelector('#destination') ? '.map-location-label select' : 'select[id^="location-"]',cases[0].placeOptions[0].id);
+ await chooseReviewedPlace();
  await act(async()=>document.querySelector('input[type="checkbox"]').click());
  await input('input[id^="place-"]','A descriptive name');
  assert.equal(document.querySelector('input[type="checkbox"]').checked,false);
@@ -96,7 +100,7 @@ test('reviewed map and dropdown selections agree; naming resets confirmation',as
  assert.equal(document.querySelector('input[type="checkbox"]'),null);
 });
 test('pending analysis locks edits and never pulls the resident back after navigation',async()=>{
- await mount();await click('I’m already back');await fillStop();await input(document.querySelector('#destination') ? '.map-location-label select' : 'select[id^="location-"]',cases[0].placeOptions[0].id);
+ await mount();await click('I’m already back');await fillStop();await chooseReviewedPlace();
  await act(async()=>document.querySelector('input[type="checkbox"]').click());
  let finish;holdReflection=new Promise(resolve=>{finish=resolve});
  await click('Find the connection');assert.equal(reflectStarted,true);
@@ -113,7 +117,7 @@ test('pending analysis locks edits and never pulls the resident back after navig
  assert.equal(document.querySelector('#change').value,'My own words');
 });
 test('preparation pin survives naming and the map disappears on departure',async()=>{
- await mount();await input(document.querySelector('#destination') ? '.map-location-label select' : 'select[id^="location-"]',cases[0].placeOptions[0].id);
+ await mount();await chooseReviewedPlace();
  await input('#destination','A friendly name');
  assert.ok(document.querySelector('.selected-pin'));
  await click('I’m heading out');
@@ -126,7 +130,7 @@ test('simulated outing returns fresh, connects a supported stop and copies an ex
  assert.equal(document.querySelector('.place-map'),null);
  // Closing/reopening deliberately loses optional preparation; returning needs no stored itinerary.
  await mount();assert.equal(document.querySelector('#destination').value,'');
- await click('I’m already back');await input(document.querySelector('#destination') ? '.map-location-label select' : 'select[id^="location-"]',cases[0].placeOptions[0].id);
+ await click('I’m already back');await chooseReviewedPlace();
  await input('textarea[id^="observation-"]','SIMULATED: We enjoyed walking together but felt hurried.');
  await act(async()=>document.querySelector('input[type="checkbox"]').click());
  await click('Find the connection');assert.match(text(),/A possible connection/);
@@ -220,7 +224,7 @@ test('removing an active stop selects and focuses a remaining form; cancel prese
  } finally {window.confirm=originalConfirm;}
 });
 test('departure can be undone through Edit my plan, Before I go, and the wordmark without clearing writing',async()=>{
- await mount();await input('.map-location-label select',cases[0].placeOptions[0].id);
+ await mount();await chooseReviewedPlace();
  await input('#destination','My original plan');await click('I’m heading out');
  await click('Edit my plan');assert.ok(document.querySelector('.place-map'));
  assert.equal(document.querySelector('#destination').value,'My original plan');

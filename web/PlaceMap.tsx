@@ -126,15 +126,13 @@ export default function PlaceMap({
         ref={element}
         className="place-map"
         role="region"
-        aria-label="Interactive neighborhood map. Arrow keys pan; plus and minus zoom. Reviewed locations are available in the place selector."
+        aria-label="Interactive neighborhood map. Arrow keys pan; plus and minus zoom. Use Tab to reach sample proposal markers, or type a place in the form."
       />
       {failed && (
         <p role="status" className="error">
-          The map background could not load. Use the place selector or type a
-          place in the form; your reflection still works.
+          The map background could not load. You can still type a place in the form.
         </p>
       )}
-      {!target && <label className="map-location-label">Sample proposal locations<select disabled={disabled} value={places.find(place => selected?.lat === place.coordinates.lat && selected?.lng === place.coordinates.lng)?.id || ""} onChange={event => { const place = places.find(item => item.id === event.target.value); if (place) choose.current(place.coordinates,place); }}><option value="">Choose a sample location (optional)</option>{places.map(place => <option key={place.id} value={place.id}>{place.label}</option>)}</select></label>}
       <p className="helper" role="status">
         {selected
           ? "✓ Your selected place. Check or edit its name in the form."
