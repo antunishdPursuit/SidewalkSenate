@@ -32,8 +32,11 @@ export default function SuggestionView({
         ) : (
           <>
             <p className="helper">
-              For {current.place}. Edit the AI suggestion or write your own. You
-              don’t have to agree with the proposal.
+              {current.analysis
+                ? `For ${current.place}. Edit the AI suggestion or write your own. You don’t have to agree with the proposal.`
+                : current.outcome === "no_match"
+                  ? `For ${current.place}. There’s no reviewed proposal for this place, so write your own suggestion or question.`
+                  : `For ${current.place}. Write your own suggestion or question.`}
             </p>
             <label htmlFor="draft-observation">
               Your experience, in your words

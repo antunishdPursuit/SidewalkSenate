@@ -75,6 +75,9 @@ test('source retry retains writing and manual no-match drafting remains usable',
  assert.doesNotMatch(text(),/Reviewed sources are unavailable/);
  await click('Find the connection');
  assert.match(text(),/No reviewed match/);
+ // A no-match stop has neither an AI suggestion nor a proposal to agree with.
+ assert.match(text(),/There’s no reviewed proposal for this place, so write your own suggestion or question\./);
+ assert.doesNotMatch(text(),/Edit the AI suggestion/);
 
  await input('#change','My resident suggestion');
  await input('#draft-observation','');
@@ -134,6 +137,7 @@ test('simulated outing returns fresh, connects a supported stop and copies an ex
  await input('textarea[id^="observation-"]','SIMULATED: We enjoyed walking together but felt hurried.');
  await act(async()=>document.querySelector('input[type="checkbox"]').click());
  await click('Find the connection');assert.match(text(),/A possible connection/);
+ assert.match(text(),/Edit the AI suggestion or write your own/);
  await input('#change','SIMULATED RESIDENT EDIT: Could we discuss crossing together?');
  await act(async()=>document.querySelector('input[type="checkbox"]').click());await click('Format an unsent draft');
  let copied;Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{copied=value}}});
