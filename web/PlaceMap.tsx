@@ -119,8 +119,9 @@ export default function PlaceMap({
   }, [selected]);
   return (
     <section className="map-panel" aria-label="Choose a place on the map">
+      <h2>{target || "Your destination"}</h2>
       <p className="helper"><strong>Sample proposal locations:</strong> green P markers show three reference intersections in the Court Square example. They are not a route or your outing stops.</p>
-      <p className="helper">{target ? "Your location for " + target + ": choose a sample marker or tap another place you visited, then name it in the form." : "Your plan: choose a sample marker, tap another destination, or type a place in the form."}</p>
+      <p className="helper">{target ? "Choose a sample marker or tap another place you visited, then name it in the form." : "Your plan: choose a sample marker, tap another destination, or type a place in the form."}</p>
       <div
         ref={element}
         className="place-map"
