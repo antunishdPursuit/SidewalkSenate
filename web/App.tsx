@@ -115,6 +115,10 @@ export default function App() {
     navigation.current++;
     setStep(index);
   }
+  function selectStop(id: string) {
+    navigation.current++;
+    setActive(id);
+  }
   function requestReset() {
     if (dirty || headingOut || busy) resetDialog.current?.showModal();
     else reset();
@@ -248,7 +252,7 @@ export default function App() {
       <main id="main" tabIndex={-1}>
         <div className="page-heading map-intro"><h1>{step < 2 ? "My outing" : "Connection & draft"}</h1><p className="intro">{step < 2 ? "Enjoy your plans. Come back with a thought." : "Review the connection, then write in your own voice."}</p></div>
         {step < 2 && <div className="outing-modes" role="group" aria-label="Outing mode"><button className={step === 0 ? "secondary selected" : "secondary"} aria-pressed={step === 0} onClick={() => move(0)}>Before I go</button><button className={step === 1 ? "secondary selected" : "secondary"} aria-pressed={step === 1} onClick={() => move(1)}>I’m back</button><span className="helper">Pilot: Court Square · One reviewed proposal</span></div>}
-        {step === 1 && <div className="stop-picker" role="group" aria-label="Choose a stop">{stops.map((stop,index) => <button key={stop.id} className={current.id === stop.id ? "secondary selected" : "secondary"} aria-pressed={current.id === stop.id} onClick={() => setActive(stop.id)}>{stop.place || "Stop " + (index + 1)}</button>)}</div>}
+        {step === 1 && <div className="stop-picker" role="group" aria-label="Choose a stop">{stops.map((stop,index) => <button key={stop.id} className={current.id === stop.id ? "secondary selected" : "secondary"} aria-pressed={current.id === stop.id} onClick={() => selectStop(stop.id)}>{stop.place || "Stop " + (index + 1)}</button>)}</div>}
         {sourceError && (
           <div className="error">
             <p role="alert">{sourceError}</p>
@@ -304,7 +308,7 @@ export default function App() {
             draftBusy={draftBusy}
             sourceLoading={sourceLoading}
             project={project}
-            setActive={setActive}
+            setActive={selectStop}
             setStops={setStops}
             patch={patch}
             connect={connect}
@@ -326,7 +330,7 @@ export default function App() {
                   }
                   key={stop.id}
                   onClick={() => {
-                    setActive(stop.id);
+                    selectStop(stop.id);
                   }}
                   aria-pressed={current.id === stop.id}
                 >

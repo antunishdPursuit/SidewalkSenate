@@ -178,6 +178,17 @@ test('Start over during draft formatting never restores an old draft',async()=>{
  await act(async()=>finish());await click('Connection & draft');
  assert.equal(document.querySelector('pre'),null);assert.equal(document.querySelector('#change'),null);
 });
+test('pending analysis never overrides a stop selected while waiting',async()=>{
+ await mount();await click('I’m already back');
+ await input('input[id^="place-"]','Stop A');await input('textarea','A recollection');
+ await click('+ Add another stop');await input('input[id^="place-"]','Stop B');await input('textarea','B recollection');
+ await click('Stop A');let finish;holdReflection=new Promise(resolve=>{finish=resolve});
+ await click('Find the connection');await click('Stop B');await act(async()=>finish());
+ assert.equal(document.querySelector('main h1').textContent,'My outing');
+ assert.equal(document.querySelector('input[id^="place-"]').value,'Stop B');
+ assert.equal(document.querySelector('textarea').value,'B recollection');
+ await click('Stop A');await click('Connection & draft');assert.match(text(),/No reviewed match/);
+});
 test('real local AI outing through the actual React workspaces', {skip:process.env.LOCAL_UI_REAL !== '1'}, async()=>{
  const mockedFetch=globalThis.fetch;
  globalThis.fetch=(url,options)=>originalFetch(new URL(url,'http://127.0.0.1:4178/'),options);
