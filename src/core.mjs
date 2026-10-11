@@ -37,7 +37,8 @@ export function validateAnalysis(raw, context) {
     suggestion: {
       title: text(suggestion.title, 'Suggestion title', 160),
       change: text(suggestion.change, 'Suggested change', 1200),
-      rationale: text(suggestion.rationale, 'Rationale', 1200),
+      // Do not expose model-generated diagnoses as a rationale for resident feedback.
+      rationale: 'Based on your personal reflection, not verified street conditions or an engineering assessment.',
       openQuestions: suggestion.openQuestions.map(q => text(q, 'Open question', 300)),
     },
     reviewRequired: true,

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node src/server.mjs",
-    "test": "node --test",
+    "test": "node --test test/*.test.mjs",
     "check": "node --check src/server.mjs && node --check src/core.mjs && node --check src/model.mjs",
     "walk": "node src/walk.mjs",
     "dev": "vite",
@@ -17,7 +17,8 @@
     "setup": "node scripts/local.mjs --setup",
     "doctor": "node scripts/local.mjs --check",
     "local": "node scripts/local.mjs",
-    "simulate": "node scripts/simulate.mjs"
+    "simulate": "node scripts/simulate.mjs",
+    "simulate:real": "node scripts/simulate.mjs --real"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

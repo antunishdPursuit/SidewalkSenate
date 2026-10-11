@@ -28,10 +28,12 @@ if (missing) process.exit(1);
 let endpoint;
 try { endpoint = modelEndpoint(); } catch (error) { console.error(error.message); process.exit(1); }
 try {
-  const health = new URL('/health', endpoint);
+  const health = new URL('/v1/models', endpoint);
   const response = await fetch(health, { signal: AbortSignal.timeout(3000), redirect: 'error' });
   if (!response.ok) throw new Error();
-  console.log('Local model service responds. This health check does not verify Gemma identity or inference quality.');
+  const inventory = await response.json();
+  if (!inventory.data?.some(item => item.id === 'local-gemma' || item.id === 'local-gemma:latest')) throw new Error();
+  console.log('Local model alias local-gemma is available. Run npm run simulate:real to check inference; model identity must match your documented import.');
 } catch {
   console.log('Local model is unavailable. The website still supports your own reflections and unsent suggestions.');
   console.log('For AI connections, start the Gemma runtime described in README.md. No cloud fallback or automatic model download.');

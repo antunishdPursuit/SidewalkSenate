@@ -24,7 +24,7 @@ Example after personally confirming the location:
 {"place":"Thomson and Jackson","observation":"We liked walking together but felt crowded.","caseId":"court-square-2026","placeId":"thomson-jackson","confirmed":true}
 ```
 
-A local OpenAI-compatible Gemma server must be listening at http://127.0.0.1:8187/v1/chat/completions. LOCAL_MODEL_URL may override this with another loopback HTTP chat endpoint. The prototype does not download or start a model automatically. No cloud fallback exists. Inference times out after 120 seconds; one request runs at a time.
+The tested runtime is Ollama 0.35.0, serving an explicitly imported Gemma 4 E4B Instruct Q4_0 file under the local alias `local-gemma`. Default endpoint: `http://127.0.0.1:11434/v1/chat/completions`. `LOCAL_MODEL_URL` can select another loopback HTTP chat-completions endpoint, but no cloud endpoint is accepted. Model download/import and startup are explicit user steps. No fallback or automatic retries exist. Inference times out after 120 seconds; one request runs at a time.
 
 POST /api/draft accepts place, observation, change, reviewed:true and formats an unsent resident suggestion. It does not verify a recipient or submit anything.
 
@@ -78,15 +78,30 @@ Open the printed `http://127.0.0.1:4178` address in your browser. Keep the termi
 
 ### Enable real local AI
 
-The model and runtime are separate downloads and are not bundled in this source ZIP. Use a Gemma-compatible llama.cpp release and a compatible Gemma Instruct GGUF. Follow the model publisher's license and download instructions; record the chosen model revision and quantization. Current supported API: local `/v1/chat/completions` with JSON-schema response formatting. llama.cpp documentation: https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md. Runtime releases: https://github.com/ggml-org/llama.cpp/releases. Gemma information: https://ai.google.dev/gemma/docs.
+Install Ollama from https://ollama.com/download/windows (Windows is the tested environment). Model files are separate and are not bundled. The tested model is `ggml-org/gemma-4-E4B-it-GGUF`, revision `b8093469224f83f5c38f691eb906c380e9e63114`, file `gemma-4-E4B-it-Q4_0.gguf`, SHA256 `a555b900214b477d8880e7832e0b8925e139b0159640036b09fe472b6f2097f2`. Download from https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/tree/b8093469224f83f5c38f691eb906c380e9e63114 and verify the hash before importing. Gemma 4 has its own Apache-2.0 license; review the publisher's license independently of this project's MIT license. The text-only application does not use the vision projector.
 
-With `llama-server` available in your terminal, replace the quoted path with your downloaded Gemma GGUF:
+Create a text file named `Modelfile` containing the following, replacing the model path with your own downloaded file (forward slashes work on Windows):
 
-```powershell
-llama-server -m "PATH_TO_YOUR_GEMMA_INSTRUCT.gguf" --host 127.0.0.1 --port 8187 -c 4096
+```text
+FROM C:/path/to/gemma-4-E4B-it-Q4_0.gguf
+PARAMETER num_ctx 4096
 ```
 
-Keep that separate terminal running, then run `npm run local` in this project. GPU acceleration and optional model-specific arguments depend on your runtime/model; consult their documentation. The earlier development run used Gemma 4 E4B with llama.cpp; this generic command is not a verified installation on every machine. RAM/VRAM needs and speed vary by model and quantization, so no universal hardware minimum is claimed. The setup checker verifies health only; an actual supported-location reflection verifies inference. No closed model fallback exists.
+With Ollama running locally, execute:
+
+```powershell
+ollama create local-gemma -f Modelfile
+ollama run local-gemma "Reply with hello."
+npm run doctor
+npm run simulate:real
+npm run local
+```
+
+The warm-up is real local inference, not a health check. First load may be slower than later requests; one earlier cold run timed out. The checker uses `/v1/models` and verifies the alias exists; it does not certify model identity or answer quality. Do not use a cloud tag or sign in for cloud inference. Keep Ollama bound to loopback; default local port is 11434. No security settings need changing. An unsigned standalone llama.cpp runtime was blocked on the development machine; it is not our recommended setup.
+
+The GGUF is about 4.6 GB; additional memory and disk are required for importing/loading. Hardware requirements and speed vary, so no universal minimum or latency promise is claimed. Tested runtime API supports schema-constrained responses; validation rejects malformed output and unsupported claim IDs. Local services can have their own logs. Original reflections are not saved by this app.
+
+Documentation: https://docs.ollama.com/import and https://docs.ollama.com/api/openai-compatibility.
 
 ### Try an outing
 
@@ -97,3 +112,9 @@ Preparation is optional and is not saved across reloads. Maps need internet; alr
 ### Reproduce the labelled simulation
 
 Run `npm run simulate` to see a fictional two-stop outing through the real local HTTP handlers. The script uses an ephemeral loopback server and explicitly labelled mock AI; it does not require a model or make external requests. It prints the source citation and unsent draft, checks the confirmation and review gates, and verifies that an unsupported stop gets no invented match. It stops its own server afterward. This is workflow evidence, not a real visit or evidence of Gemma quality. `npm test` separately exercises the actual React screens, navigation and writing preservation.
+
+### Real inference and quality limits
+
+`npm run simulate:real` runs the same fictional outing using actual local Gemma. It prints the validated AI output and source citations; empty connections are allowed. It fails visibly if the model is missing, loading too slowly, or returns rejected output, without silently using a mock or retrying. `npm run simulate` remains the explicitly labelled deterministic mock workflow. Neither proves a real outdoor visit.
+
+One earlier response inferred inadequate crossing timing from feeling hurried. The application now replaces the model-written rationale with a fixed personal-reflection disclaimer, so that diagnosis cannot appear in that field. This is a narrow deterministic guard, not a guarantee that summaries, connections or suggestions are semantically correct. Review all AI wording beside the original reflection; dated proposals do not establish current street conditions. Positive feedback need not become a request for change.

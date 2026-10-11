@@ -99,3 +99,13 @@ test('HTTP confirmation skips inference and concurrency recovers after failure',
  assert.equal((await post(input)).status,503);
  assert.equal(calls,2);
 });
+
+
+test('a model rationale cannot diagnose existing street conditions',()=>{
+ const result=validateAnalysis({...output,suggestion:{...output.suggestion,rationale:'Existing signal timing may not be adequate.'}},context);
+ assert.equal(result.suggestion.rationale,'Based on your personal reflection, not verified street conditions or an engineering assessment.');
+});
+
+test('truncated model output fails explicitly instead of accepting a partial answer',async()=>{
+ await assert.rejects(()=>analyze(context,async()=>Response.json({choices:[{finish_reason:'length',message:{content:'{'}}]})),/output limit/);
+});
